@@ -1,0 +1,186 @@
+#   Copyright (C) 2017 Thomas DiModica <ricinwich@yahoo.com>
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Search for value in array, returning a result that can be interpolated on
+function BinSearch(value, array) is
+   if value < array[0] then
+      set index to 0
+   elseif value > array[(Size(array) - 1)] then
+      set index to Size(array) - 2
+   else
+      set bottom to 0
+      set top to Size(array) - 1
+
+      set index to Floor((top + bottom) / 2)
+      while (top - bottom) > 1 do
+         if value > array[index] then
+            set bottom to index
+         elseif value < array[index] then
+            set top to index
+         else
+            set top to index
+            set bottom to index
+         end
+         set index to Floor((top + bottom) / 2)
+      end
+
+      if index = Size(array) - 1 then
+         set index to index - 1
+      end
+   end
+   return index
+end
+
+# Interpolate i1 where independents are scaled to dependents
+## i1 - Double
+## independents - Array of Double
+## dependents - Array of Double
+function OneDimensionalTableInterpolator(i1, independents, dependents) is
+   set index to BinSearch(i1, independents)
+
+   set x1 to independents[index]
+   set x2 to independents[(index + 1)]
+   set y1 to dependents[index]
+   set y2 to dependents[(index + 1)]
+
+   return y1 + (y2 - y1) * (i1 - x1) / (x2 - x1)
+end
+
+## i1 - Double
+## i2 - Double
+## independents - Array of Array of Double
+## dependents - Array of Array of Double
+function TwoDimensionalTableInterpolator(i1, i2, independents, dependents) is
+   set index to BinSearch(i2, independents[1])
+
+   set x1 to independents[1][index]
+   set x2 to independents[1][(index + 1)]
+   set y1 to OneDimensionalTableInterpolator(i1, independents[0], dependents[index])
+   set y2 to OneDimensionalTableInterpolator(i1, independents[0], dependents[(index + 1)])
+
+   return y1 + (y2 - y1) * (i2 - x1) / (x2 - x1)
+end
+
+## i1 - Double
+## i2 - Double
+## i3 - Double
+## independents - Array of Array of Double
+## dependents - Array of Array of Array of Double
+function ThreeDimensionalTableInterpolator(i1, i2, i3, independents, dependents) is
+   set index to BinSearch(i3, independents[2])
+
+   set x1 to independents[2][index]
+   set x2 to independents[2][(index + 1)]
+   set y1 to TwoDimensionalTableInterpolator(i1, i2, independents, dependents[index])
+   set y2 to TwoDimensionalTableInterpolator(i1, i2, independents, dependents[(index + 1)])
+
+   return y1 + (y2 - y1) * (i3 - x1) / (x2 - x1)
+end
+
+## i1 - Double
+## i2 - Double
+## i3 - Double
+## i4 - Double
+## independents - Array of Array of Double
+## dependents - Array of Array of Array of Array of Double
+function FourDimensionalTableInterpolator(i1, i2, i3, i4, independents, dependents) is
+   set index to BinSearch(i4, independents[3])
+
+   set x1 to independents[3][index]
+   set x2 to independents[3][(index + 1)]
+   set y1 to ThreeDimensionalTableInterpolator(i1, i2, i3, independents, dependents[index])
+   set y2 to ThreeDimensionalTableInterpolator(i1, i2, i3, independents, dependents[(index + 1)])
+
+   return y1 + (y2 - y1) * (i4 - x1) / (x2 - x1)
+end
+
+## i1 - Double
+## i2 - Double
+## i3 - Double
+## i4 - Double
+## i5 - Double
+## independents - Array of Array of Double
+## dependents - Array of Array of Array of Array of Array of Double
+function FiveDimensionalTableInterpolator(i1, i2, i3, i4, i5, independents, dependents) is
+   set index to BinSearch(i5, independents[4])
+
+   set x1 to independents[4][index]
+   set x2 to independents[4][(index + 1)]
+   set y1 to FourDimensionalTableInterpolator(i1, i2, i3, i4, independents, dependents[index])
+   set y2 to FourDimensionalTableInterpolator(i1, i2, i3, i4, independents, dependents[(index + 1)])
+
+   return y1 + (y2 - y1) * (i5 - x1) / (x2 - x1)
+end
+
+## i1 - Double
+## i2 - Double
+## i3 - Double
+## i4 - Double
+## i5 - Double
+## i6 - Double
+## independents - Array of Array of Double
+## dependents - Array of Array of Array of Array of Array of Array of Double
+function SixDimensionalTableInterpolator(i1, i2, i3, i4, i5, i6, independents, dependents) is
+   set index to BinSearch(i6, independents[5])
+
+   set x1 to independents[5][index]
+   set x2 to independents[5][(index + 1)]
+   set y1 to FiveDimensionalTableInterpolator(i1, i2, i3, i4, i5, independents, dependents[index])
+   set y2 to FiveDimensionalTableInterpolator(i1, i2, i3, i4, i5, independents, dependents[(index + 1)])
+
+   return y1 + (y2 - y1) * (i6 - x1) / (x2 - x1)
+end
+
+
+
+function TestBinSearch() is
+   call Warn("Test 1")
+   call Warn(ToString(BinSearch(1.5, {1, 2})))
+   call Warn("Should be 0")
+
+   call Warn("Test 2")
+   call Warn(ToString(BinSearch(1.5, {1, 2, 7})))
+   call Warn("Should be 0")
+
+   call Warn("Test 3")
+   call Warn(ToString(BinSearch(3.5, {1, 2, 7})))
+   call Warn("Should be 1")
+
+   call Warn("Test 4")
+   call Warn(ToString(BinSearch(1.5, {1, 2, 7, 8})))
+   call Warn("Should be 0")
+
+   call Warn("Test 5")
+   call Warn(ToString(BinSearch(3.5, {1, 2, 7, 8})))
+   call Warn("Should be 1")
+
+   call Warn("Test 5")
+   call Warn(ToString(BinSearch(8.0, {1, 2, 7, 8})))
+   call Warn("Should be 2")
+
+   return 0
+end
+
+function Test1DInterp() is
+   call Warn("Test 1")
+   call Warn(ToString(OneDimensionalTableInterpolator(1.5, {1, 2}, {1, 4})))
+   call Warn("Should be 2.5")
+
+   call Warn("Test 2")
+   call Warn(ToString(TwoDimensionalTableInterpolator(1.5, 1.5, {{1, 2}, {1, 2}}, {{1, 2}, {2, 3}})))
+   call Warn("Should be 2")
+
+   return 0
+end

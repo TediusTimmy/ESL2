@@ -1,0 +1,60 @@
+#   Copyright (C) 2017 Thomas DiModica <ricinwich@yahoo.com>
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+function SetIndexSlow (array, index, value) is
+   if IsArray(array) then
+      if IsDouble(index) then
+         if (0.0 <= index) & (Size(array) > index) then
+            set iter to 0
+            set result to NewArray()
+            while iter < Size(array) do
+               if iter = Floor(index) then
+                  set result to PushBack(result, value)
+               else
+                  set result to PushBack(result, array[iter])
+               end
+               set iter to iter + 1.0
+            end
+         else
+            call Fatal("Array index Out-Of-Bounds")
+         end
+      else
+         call Fatal("Error indexing with non-Double")
+      end
+   else
+      call Fatal("Error indexing into non-Array")
+   end
+   return result
+end
+
+function DoTestNewSetIndex () is
+   set array to NewArrayDefault(3, 1)
+   set index to 0
+   while index < 3 do
+      call Info(ToString(array[index]))
+      set index to index + 1
+   end
+   set index to 0
+   while index < 3 do
+      set array to SetIndexSlow(array, index, index)
+      set index to index + 1
+   end
+   set index to 0
+   while index < 3 do
+      call Info(ToString(array[index]))
+      set index to index + 1
+   end
+   return 0
+end
