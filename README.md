@@ -28,8 +28,8 @@ This is the language as implemented. Examples are located in the testfiles direc
 * . []  -- x.y is syntactic sugar for x["y"]
 * ^  -- non-associative
 * ! -  -- unary negation
-* * / %  -- last is vector cross product
-* + -
+* \* / %  -- last is vector cross product
+* \+ \-
 * = <> > >= < <=
 * | &  -- Always short-circuit
 * ?:
@@ -37,38 +37,38 @@ This is the language as implemented. Examples are located in the testfiles direc
 ## Statements
 I'm going to mostly use BNF. Hopefully, I'm not doing anything fishy. Note that [] is zero-or-one and {} is zero-to-many.
 ### Expression
-`"call" <expression>`
+`"call" <expression>`  
 To simplify the language, we have specific keywords to find the beginning of a statement. The "first set" of a statement is intentionally small, so that parsing and error recovery is easier. It makes the language a little verbose, though. Sometimes you want to just call a function (for instance, to output a message), and this is how. It will also allow you to add three to the function's result.
 ### Assignment
-`"set" <identifier> { "[" <expression> "]" } "to" <expression>`
-`"set" <identifier> { "." <identifier> } "to" <expression>`
+`"set" <identifier> { "[" <expression> "]" } "to" <expression>`  
+`"set" <identifier> { "." <identifier> } "to" <expression>`  
 Assigning to an undefined variable creates it. The parser will catch if you try to create a variable and access it like an array/dictionary in the same statement.
 TODO : the parser probably won't catch `set x to x` properly.
 ### If
-`"if" <expression> "then" <statements> { "elseif" <statements> } [ "else" <statements> ] "end"`
+`"if" <expression> "then" <statements> { "elseif" <statements> } [ "else" <statements> ] "end"`  
 ### While
-`"while" <expression> [ "call" <identifier> ] "do" <statements> "end"`
+`"while" <expression> [ "call" <identifier> ] "do" <statements> "end"`  
 The "call" portion gives the loop a name. See break and continue.
 ### For
-`"for" <variable> "from" <expression> ( "to" | "downto" ) <expression> [ "step" <expression> ] [ "call" <identifier> ] "do" <statements> "end"`
-`"for" <variable> "in" <expression> [ "call" <identifier> ] "do" <statements> "end"`
+`"for" <variable> "from" <expression> ( "to" | "downto" ) <expression> [ "step" <expression> ] [ "call" <identifier> ] "do" <statements> "end"`  
+`"for" <variable> "in" <expression> [ "call" <identifier> ] "do" <statements> "end"`  
 The second form iterates over an array or dictionary. When a dictionary is iterated over, the loop control variable is successively set to a two element array of { key, value }.
 ### Return
 `"return" <expression>`
 ### Select
-`"select" <expression> "from"`
-`    [ "also" ] "case" [ ( "above" | "below" ) ] <expression> "is"`
-`    [ "also" ] "case" "from" <expression> "to" <expression> "is"`
-`    [ "also" ] "case" "else" "is"`
-`"end"`
+`"select" <expression> "from"`  
+`    [ "also" ] "case" [ ( "above" | "below" ) ] <expression> "is"`  
+`    [ "also" ] "case" "from" <expression> "to" <expression> "is"`  
+`    [ "also" ] "case" "else" "is"`  
+`"end"`  
 Select has a lot of forms and does a lot of stuff. Cases are breaking, and "also" is used to have them fall-through. Case else must be the last case.
 #### Break
-`"break" [ <identifier> ]`
+`"break" [ <identifier> ]`  
 Breaks out of the current while or for loop, or the named while or for loop. This isn't completely a statement, in that it requires a loop to be in context.
 #### Continue
-`"continue" [ <identifier> ]`
+`"continue" [ <identifier> ]`  
 #### Function Definition
-`"function" <identifier> "(" [ <identifier> { "," <identifier> } ] ")" "is" <statements> "end"`
+`"function" <identifier> "(" [ <identifier> { "," <identifier> } ] ")" "is" <statements> "end"`  
 This is a pseudo-statement in that it is never executed. Function declaration is static, and a function cannot access the variables of an enclosing function. A mutually-recursive function definition may look like so: `function one () is function two () is <function two statements which call function one> end <function one statements which call function two> end`. All arguments to function calls are pass-by-value, semantically.
 
 Functions are really why I stopped working on this. I wanted to make the code object-oriented, in the javascript sense of dictionaries with methods. Partly, I didn't want to implement closures: capturing the value of a variable in an enclosing scope when the function is dynamically declared. Most importantly, I could not balance two concerns: A) assignment should be the only way to modify the value of a variable, and B) a method ought to be able to modify the object on which it is called. In my view, the code is easier to understand when assignment is the only way to change the value within a variable. Function calls are always pass-by-value. But, the method of an object may have a need to change the underlying object. How do I update some reference holders to the modified dictionary and not others? Or, how do I specify that some function calls have two results, a return value and a modified dictionary, in a syntactically pleasing way? Note that it is not as simple as allowing function calls to return two values: both results may be ephemeral within the current expression. I am also lazy and didn't want to figure out how to cleanly make `self` or `this` work.
@@ -101,7 +101,7 @@ Functions are really why I stopped working on this. I wanted to make the code ob
 * double GetX (vector)  # return the x component of the vector
 * double GetY (vector)  # return the y component of the vector
 * double GetZ (vector)  # return the z component of the vector
-* double Hypot (double, double)  # hypotenuse function : Sqrt(x*x + y*y) with (I hope) hardening for underflow
+* double Hypot (double, double)  # hypotenuse function : Sqrt(xx + yy) with (I hope) hardening for underflow
 * string Info (string)  # log an informational string, returns its argument
 * dictionary Insert (dictionary, value, value)  # insert value 2 into dictionary with value 1 as its key and return the modified dictionary (remember, this DOES NOT modify the passed-in dictionary)
 * matrix Invert (matrix)  # invert
