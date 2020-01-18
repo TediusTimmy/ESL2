@@ -21,26 +21,26 @@ This is the language as implemented. Examples are located in the testfiles direc
 * Function Pointer
 
 ## Operations
-* \+ double, vector, matrix, quaternion addition; string catenation; for collections, the operation is performed over the contents of the collection
-* \- double, vector, matrix, quaternion subtraction; for collections, the operation is performed over the contents of the collection
-* \- double, vector, matrix, quaternion unary negation; for collections, the operation is performed over the contents of the collection
-* \* double, matrix, quaternion multiplication; vector dot (scalar) product; for collections, the operation is performed over the contents of the collection
-* /  double division; vector, matrix, quaternion division by a scalar; for collections, the operation is performed over the contents of the collection
-* %  vector cross (vector) product; for collections, the operation is performed over the contents of the collection
-* ^  double exponentiation; can take a matrix or quaternion to the -1 power to invert it; this operator is non-associative
-* !  logical not
-* >  greater than, only defined for strings and doubles
-* >= greater than or equal to, only defined for strings and doubles
-* <  less than, only defined for strings and doubles
-* <= less than or equal to, only defined for strings and doubles
-* =  equality, defined for all types
-* <> inequality, defined for all types
-* ?: ternary operator
-* &  logical and, short-circuit
-* |  logical or, short-circuit
-* [] collection access
-* .  syntactic sugar for collection access; x.y is equivalent to x["y"]
-* {} collection creation: `{}` is an empty array; `{ x, y, z }` creates an array; `{ x : y , z : w , a : b }` creates a dictionary
+* \+  double, vector, matrix, quaternion addition; string catenation; for collections, the operation is performed over the contents of the collection
+* \-  double, vector, matrix, quaternion subtraction; for collections, the operation is performed over the contents of the collection
+* \-  double, vector, matrix, quaternion unary negation; for collections, the operation is performed over the contents of the collection
+* \*  double, matrix, quaternion multiplication; vector dot (scalar) product; for collections, the operation is performed over the contents of the collection
+* /   double division; vector, matrix, quaternion division by a scalar; for collections, the operation is performed over the contents of the collection
+* %   vector cross (vector) product; for collections, the operation is performed over the contents of the collection
+* ^   double exponentiation; can take a matrix or quaternion to the -1 power to invert it; this operator is non-associative
+* !   logical not
+* \>  greater than, only defined for strings and doubles
+* \>= greater than or equal to, only defined for strings and doubles
+* <   less than, only defined for strings and doubles
+* <=  less than or equal to, only defined for strings and doubles
+* =   equality, defined for all types
+* <>  inequality, defined for all types
+* ?:  ternary operator
+* &   logical and, short-circuit
+* |   logical or, short-circuit
+* []  collection access
+* .   syntactic sugar for collection access; x.y is equivalent to x["y"]
+* {}  collection creation: `{}` is an empty array; `{ x, y, z }` creates an array; `{ x : y , z : w , a : b }` creates a dictionary
 
 ## Operator Precedence
 * ()  -- function call
