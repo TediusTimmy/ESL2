@@ -28,9 +28,9 @@ public final class Lexer
     private final String sourceName;
     private Token nextToken;
 
-    public Lexer(BufferedGenericInput input, String sourceName, int startLine, int startChar) throws FatalException
+    public Lexer(GenericInput input, String sourceName, int startLine, int startChar) throws FatalException
     {
-        bgi = input;
+        bgi = new BufferedGenericInput(input);
         this.sourceName = sourceName;
         currentLine = startLine;
         currentCharacter = startChar;
@@ -407,6 +407,96 @@ public final class Lexer
         }
 
         nextToken = new Token(tokenType, text, sourceName, lineNo, charNo);
+    }
+
+    private static final class BufferedGenericInput
+    {
+
+        private final GenericInput input;
+        private final java.util.LinkedList<Character> buffer;
+        private boolean endOfFile;
+
+        public BufferedGenericInput(GenericInput toBuffer)
+        {
+            input = toBuffer;
+            buffer = new java.util.LinkedList<Character>();
+            endOfFile = false;
+        }
+
+        private void fill (int count) throws FatalException
+        {
+            if (true == endOfFile)
+            {
+                return;
+            }
+
+            for (int i = 0; i < count; ++i)
+            {
+                int it = input.getNextCharacter();
+                
+                if (GenericInput.ENDOFFILE == it)
+                {
+                    endOfFile = true;
+                    return;
+                }
+                else if (true == Character.isValidCodePoint(it))
+                {
+                    buffer.add(new Character( (char) it ));
+                }
+                else
+                {
+                    throw new FatalException("Invalid character returned to BufferedGenericInput");
+                }
+            }
+        }
+
+        public int peek () throws FatalException
+        {
+            return peek(0);
+        }
+
+        public int peek (int lookahead) throws FatalException
+        {
+            // Do we have the data already?
+            if (buffer.size() > lookahead)
+            {
+                return buffer.get(lookahead).charValue();
+            }
+
+            // Try to add the amount of needed data
+            fill(lookahead - buffer.size() + 1);
+
+            // Did we get enough input?
+            if (buffer.size() > lookahead)
+            {
+                return buffer.get(lookahead).charValue();
+            }
+
+            // We must be at the End of the File.
+            return GenericInput.ENDOFFILE;
+        }
+
+        public int consume () throws FatalException
+        {
+            // Do we have the data already?
+            if (0 != buffer.size())
+            {
+                return buffer.removeFirst().charValue();
+            }
+
+            // Try to add a character
+            fill(1);
+
+            // Did we get new input?
+            if (0 != buffer.size())
+            {
+                return buffer.removeFirst().charValue();
+            }
+
+            // We must be at the End of the File.
+            return GenericInput.ENDOFFILE;
+        }
+
     }
 
 }

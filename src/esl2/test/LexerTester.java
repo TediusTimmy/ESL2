@@ -17,7 +17,6 @@
 
 package esl2.test;
 
-import esl2.input.BufferedGenericInput;
 import esl2.input.ConsoleInput;
 import esl2.input.Lexeme;
 import esl2.input.Lexer;
@@ -31,9 +30,7 @@ public final class LexerTester
     {
         try
         {
-            ConsoleInput console = new ConsoleInput();
-            BufferedGenericInput bgi = new BufferedGenericInput(console);
-            Lexer lexer = new Lexer(bgi, "Console", 1, 1);
+            Lexer lexer = new Lexer(new ConsoleInput(), "Console", 1, 1);
     
             while (Lexeme.END_OF_FILE != lexer.peekNextToken().tokenType)
             {

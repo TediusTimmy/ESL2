@@ -20,7 +20,6 @@ package esl2.test;
 import esl2.engine.CallingContext;
 import esl2.engine.Executor;
 import esl2.engine.statement.Statement;
-import esl2.input.BufferedGenericInput;
 import esl2.input.ConsoleInput;
 import esl2.input.FileInput;
 import esl2.input.Lexeme;
@@ -56,9 +55,7 @@ public final class ParserTestFromFile
 
             for (int i = 0; i < args.length; ++i)
             {
-                FileInput file = new FileInput(args[i]);
-                BufferedGenericInput bgi = new BufferedGenericInput(file);
-                Lexer lexer = new Lexer(bgi, args[i], 1, 1);
+                Lexer lexer = new Lexer(new FileInput(args[i]), args[i], 1, 1);
 
                 if (false == Parser.ParseFunctions(lexer, table, executor, dummy))
                 {
@@ -67,9 +64,7 @@ public final class ParserTestFromFile
                 }
             }
 
-            ConsoleInput console = new ConsoleInput();
-            BufferedGenericInput bgi = new BufferedGenericInput(console);
-            Lexer lexer = new Lexer(bgi, "Console", 1, 1);
+            Lexer lexer = new Lexer(new ConsoleInput(), "Console", 1, 1);
 
             while (Lexeme.END_OF_FILE != lexer.peekNextToken().tokenType)
             {

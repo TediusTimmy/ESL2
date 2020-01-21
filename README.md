@@ -197,8 +197,6 @@ So, what is up with Executors and FunctionPairs? That goes back to what I was do
 
 Finally, I may as well explain my inane focus on controlling the change in variables. In the simulation, sometimes we let the bag of rocks hit a wall, then rewind time to ten seconds before and inject a change to the simulation. Don't ask. The engine didn't support this well, because there was dispersed state and it was very difficult to properly rewind all of the effected state. It was full of bugs. ESL2 is designed to keep the state all in one unified location, so that going backwards in time is easier. This also has a added bonus of allowing something (in the future) that the simulator wasn't capable of: serializing the state. The code isn't there, but it would be trivial to add what would be necessary to serialize all the value types. You could then serialize the state and save it to disk for later, pass it to another instance for processing, etc. That was where I wanted things to go. (They eventually did implement this, and it's limitations and corner cases are so numerous it pains me.)
 
-BufferedGenericInput needs to be hidden in Lexer.
-
 ## Extending the Language
 Extensions to the types of the language are only crude. In addition, you cannot extend the operations of the language. My use case for type extension was an opaque object that represented an object being simulated, and a semi-opaque object representing a simulation state. In addition, I only needed to interrogate these objects, never compose them.
 

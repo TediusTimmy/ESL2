@@ -21,7 +21,6 @@ import esl2.engine.CallingContext;
 import esl2.engine.Executor;
 import esl2.engine.StackFrame;
 import esl2.engine.statement.Statement;
-import esl2.input.BufferedGenericInput;
 import esl2.input.Lexeme;
 import esl2.input.Lexer;
 import esl2.input.StringInput;
@@ -81,8 +80,7 @@ public final class ParserTestFromString {
  */
 );
             DummyLogger dummy = new DummyLogger();
-            BufferedGenericInput bgi = new BufferedGenericInput(input);
-            Lexer lexer = new Lexer(bgi, "Input String", 1, 1);
+            Lexer lexer = new Lexer(input, "Input String", 1, 1);
 
             SymbolTable table = new SymbolTable();
             table.pushContext(); // We need a base context to operate on.

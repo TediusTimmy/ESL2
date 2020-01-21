@@ -22,7 +22,6 @@ import java.util.Map.Entry;
 import esl2.engine.CallingContext;
 import esl2.engine.Executor;
 import esl2.engine.expression.Expression;
-import esl2.input.BufferedGenericInput;
 import esl2.input.ConsoleInput;
 import esl2.input.Lexeme;
 import esl2.input.Lexer;
@@ -118,9 +117,7 @@ public final class ParserTestFromInput
         try
         {
             DummyLogger dummy = new DummyLogger();
-            ConsoleInput console = new ConsoleInput();
-            BufferedGenericInput bgi = new BufferedGenericInput(console);
-            Lexer lexer = new Lexer(bgi, "Console", 1, 1);
+            Lexer lexer = new Lexer(new ConsoleInput(), "Console", 1, 1);
 
             SymbolTable table = new SymbolTable();
             table.pushContext(); // We need a base context to operate on.
