@@ -272,7 +272,7 @@ public final class Parser
             }
             else
             {
-                rhs = builder(src, context);
+                rhs = expression(src, context);
             }
 
             if (Lexeme.OPEN_BRACKET == token.tokenType)
