@@ -45,4 +45,15 @@ public class Executor
         debugFrames = new ArrayList<FrameDebugInfo>();
     }
 
+    public Executor duplicate()
+    {
+        Executor result = new Executor();
+        result.args.addAll(args);
+        result.locals.addAll(locals);
+        result.functions.addAll(functions);
+        result.funNames.addAll(funNames);
+        result.debugFrames.addAll(debugFrames);
+        return result;
+    }
+
 }
