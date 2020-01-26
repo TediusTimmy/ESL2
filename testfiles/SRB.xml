@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<system>
+   <shared_functions>
+      function thrust_isp (isp, mass_flow_rate_kg_s) is
+         return (isp * Getg0_m_s2() * mass_flow_rate_kg_s) * MakeVec(1.0, 0.0, 0.0)
+      end
+
+      function aero_cd (state, Cd, Sref) is
+         if GetMach(state) &lt;&gt; 0.0 then
+            set magnitude to -(GetDynamicPressure_Pa(state) * Cd * Sref)
+                  # Composite rotations are right-to-left, resulting in ECEF to Body
+                  #         ECI to Body                ECEF to ECI
+            set direction to GetOrientation_quat(state) * ECRToECIQuat()
+            return magnitude * RotVecQuat(Unit(GetVelocityECR_m_s(state)), direction)
+         else
+            return MakeVec(0.0, 0.0, 0.0)
+         end
+      end
+
+      function initialObject (inputs) is
+         if !ContainsKey(inputs, "bbo time") then
+            # Fly it to max range.
+            set inputs["bbo time"] to 124.0
+         end
+         return CreateObject("burning_srb", inputs)
+      end
+   </shared_functions>
+
+   <objects>
+      <object name="burning_srb" variables="fuel_mass bbo_time">
+         <object_functions>
+            function onObjectInit (inputs) is
+               # Initialize implicit initial state variables
+               set initial_position_wrt_parent_m to LLHToECI(inputs["launch point"], 0.0)
+               set initial_velocity_wrt_parent_m_s to ECRToECIVel(MakeVec(0.0, 0.0, 0.0), LLHToECR(inputs["launch point"]), 0.0)
+               set launch_azimuth to inputs["launch azimuth"]
+               # I don't know if this is correct, but it goes where I want it.
+                  # Rotate the X-axis until the Y-axis points at the target.
+                  # Rotate the system to the normal of the surface at the launch point.
+                  # Finally, give the system a 75* launch elevation.
+                  # For all I know, I'm pointing it in the wrong direction and pitching it over backwards.
+               set initial_orientation_wrt_parent_quat to ZRotQuat(-15.0) * Conjugate(ZRotQuat(GetY(inputs["launch point"])) * YRotQuat(-GetX(inputs["launch point"])) * XRotQuat(launch_azimuth))
+               set initial_rates_wrt_parent_deg_s to MakeVec(0.0, 0.0, 0.0)
+               set initial_mass_kg to 589670.0 # kg
+               set cg_offset_m to MakeVec(0.0, 0.0, 0.0)
+               set inertia_matrix to MakeMatRows( MakeVec(1.0, 0.0, 0.0), MakeVec(0.0, 1.0, 0.0), MakeVec(0.0, 0.0, 1.0) )
+
+               # Initialize Variables
+               set fuel_mass to 589670.0 - 87543.0 # kg
+               set bbo_time to 124.0 # s
+
+               # Should be updated in onModelUpdate, but constant.
+               set mass_flow_rate_kg_s to fuel_mass / bbo_time - 0.000001 # kg/s
+
+               # Should be updated in onModelDerivs, but constant.
+               set torque_mN to MakeVec(0.0, 0.0, 0.0)
+
+               # Use given BBO time
+               set bbo_time to Quantize(inputs["bbo time"])
+
+               return 0
+            end
+
+            function onModelInit (inputs) is
+               return 0
+            end
+         </object_functions>
+         <model_functions>
+            function onModelRealize (inputs) is
+               call StopAt(bbo_time)
+               return 0
+            end
+
+            function onModelUpdate (inputs) is
+               set temp to GetCurrentState()
+               if GetTime_s(temp) = bbo_time then
+                  call RealizeNowFirst(CreateObject("ballistic_srb", NewDictionary()), { "mass_kg" : GetMass_kg(temp) })
+                  call TerminateNow()
+               end
+               return 0
+            end
+
+            function onModelDerivs (inputs) is
+               set force_N to thrust_isp(269.0, mass_flow_rate_kg_s) + aero_cd(GetCurrentState(), 0.75, Sqr(3.71 * 0.5) * PI())
+               return 0
+            end
+         </model_functions>
+      </object>
+
+      <object name="ballistic_srb" variables="last_height last_time">
+         <object_functions>
+            function onObjectInit (inputs) is
+               # Initialize implicit initial state variables
+               set initial_position_wrt_parent_m to MakeVec(0.0, 0.0, 0.0)
+               set initial_velocity_wrt_parent_m_s to MakeVec(0.0, 0.0, 0.0)
+               set initial_orientation_wrt_parent_quat to MakeQuat(1.0, MakeVec(0.0, 0.0, 0.0))
+               set initial_rates_wrt_parent_deg_s to MakeVec(0.0, 0.0, 0.0)
+               set initial_mass_kg to 589670.0
+               set cg_offset_m to MakeVec(0.0, 0.0, 0.0)
+               set inertia_matrix to MakeMatRows( MakeVec(1.0, 0.0, 0.0), MakeVec(0.0, 1.0, 0.0), MakeVec(0.0, 0.0, 1.0) )
+
+               # Should be updated in onModelUpdate, but constant.
+               set mass_flow_rate_kg_s to 0.0
+
+               # Should be updated in onModelDerivs, but constant.
+               set torque_mN to MakeVec(0.0, 0.0, 0.0)
+
+               return 0
+            end
+
+            function onModelInit (inputs) is
+               set initial_mass_kg to inputs["mass_kg"]
+               if initial_mass_kg &lt; 87543.0 then
+                  call Fatal("Negative fuel mass at ns_payload.")
+               end
+
+               return 0
+            end
+         </object_functions>
+         <model_functions>
+            function onModelRealize (inputs) is
+               set last_height to GetZ(GetLLH_deg_deg_m(GetCurrentState()))
+               set last_time to GetTime_s(GetCurrentState())
+               return 0
+            end
+
+            function onModelUpdate (inputs) is
+               set temp to GetCurrentState()
+               set height to GetZ(GetLLH_deg_deg_m(temp))
+               # Steps to hit the ground:
+               #  Without EventHint
+               #     Without TerminateNow    25
+               #     With TerminateNow       10
+               #  With EventHint
+               #     Without TerminateNow    13 (Poor performance is partly due to how good the hint is)
+               #     With TerminateNow       2
+               if Abs(height) &lt; 0.01 then # if we are within 1cm of the surface, that's good enough.
+                  call TerminateNow()
+               elseif height &lt; 0.0 then
+                  call TerminatePassed()
+                  # Use linear interpolation to hint at when the event will be
+                  call EventHint(last_time - (last_time - GetTime_s(temp)) / (last_height - height) * last_height)
+               end
+               set last_height to height
+               set last_time to GetTime_s(temp)
+
+               return 0
+            end
+
+            function onModelDerivs (inputs) is
+               set force_N to aero_cd(GetCurrentState(), 0.75, Sqr(3.71 * 0.5) * PI())
+               return 0
+            end
+         </model_functions>
+      </object>
+   </objects>
+</system>

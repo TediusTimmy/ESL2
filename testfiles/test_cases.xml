@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test_cases>
+   <case system="SRB.xml" output_file="SRB_1.txt" seed="1"> { "launch point" : MakeVec(40.0, 40.0, 0.0), "launch azimuth" : 0.0 } </case>
+</test_cases>

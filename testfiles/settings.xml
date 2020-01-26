@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings log_level="INFO" debug="true" single_threaded="false" earth="SNRE" output_rate="1.0">
+   # log_level - "INFO", "WARN", "ERROR", or "FATAL"
+   # earth - "SNRE" (Spherical, Non-Rotating Earth) or "ORE" (Oblate, Rotating Earth)
+
+
+   # This function is necessary.
+   # outputs is an array of arrays of captured states
+   #    each array represents a simulated object
+   #    each item in the array is the array { state, outputs }
+   #       outputs is user-defined: the simulated object can report any kind of outputs
+   function doOutput (outputs) is
+      set object to 0.0
+      while object &lt; Size(outputs) do
+         set states to outputs[object][1]
+         set index to 0.0
+         while index &lt; Size(states) do
+            set state to states[index][0]
+            call DebugPrint(ToString(GetTime_s(state)) + " " + ToString(GetMass_kg(state)) + " " + ToString(Magnitude(GetVelocity_m_s(state))) + " ")
+            call DebugPrint(ToString(Magnitude(GetAcceleration_m_s2(state))) + " " + ToString(GetX(GetLLH_deg_deg_m(state))) + " ")
+            call DebugPrint(ToString(GetY(GetLLH_deg_deg_m(state))) + " " + ToString(GetZ(GetLLH_deg_deg_m(state))) + ToCharacter(10))
+            set index to index + 1.0
+         end
+         set object to object + 1.0
+      end
+      return 0.0
+   end
+</settings>
