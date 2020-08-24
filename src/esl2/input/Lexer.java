@@ -441,7 +441,7 @@ public final class Lexer
                 }
                 else if (true == Character.isValidCodePoint(it))
                 {
-                    buffer.add(new Character( (char) it ));
+                    buffer.add(Character.valueOf( (char) it ));
                 }
                 else
                 {
