@@ -101,11 +101,11 @@ public final class Model
         numBadSteps = 0;
     }
 
-    public Model(SimObject object, State state, boolean onCriticalPath, double currentTime, double firstStep)
+    public Model(SimObject object, State state, boolean priority, double currentTime, double firstStep)
     {
         this.object = object;
         this.state = state;
-        this.priority = onCriticalPath;
+        this.priority = priority;
         realizedChildren = new ArrayList<Model>();
         messages = new ArrayList<LogMessage>();
         realizedThisStep = new ArrayList<SimObject>();
