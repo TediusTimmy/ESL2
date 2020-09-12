@@ -123,7 +123,7 @@ public abstract class RK45Stepper extends Stepper
             getVector(model.object.variables.get(SimObject.TORQUE_INDEX)));
 
         outDerivs.velocity = model.state.velocity;
-        outDerivs.acceleration = force.div(model.state.mass_kg);
+        outDerivs.acceleration = force.sub(model.state.velocity.mul(force.dot(model.state.velocity) * _c2)).div(model.state.mass_kg * gamma(model.state.velocity));
 
         outDerivs.angularAcceleration = model.state.MOI.invert().mul(
             torque.sub(

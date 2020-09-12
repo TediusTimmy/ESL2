@@ -46,7 +46,7 @@ public final class EulerStepper extends Stepper
         model.state.flowRate_kg_s = getDouble(model.object.variables.get(SimObject.FLOW_RATE_INDEX));
 
         // Symplectic Euler.
-        model.state.acceleration = force.div(model.state.mass_kg);
+        model.state.acceleration = force.sub(model.state.velocity.mul(force.dot(model.state.velocity) * _c2)).div(model.state.mass_kg * gamma(model.state.velocity));
         model.state.velocity = model.state.velocity.add(model.state.acceleration.mul(deltaTime_s));
         model.state.position = model.state.position.add(model.state.velocity.mul(deltaTime_s));
 

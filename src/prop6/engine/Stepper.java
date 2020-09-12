@@ -36,6 +36,9 @@ import prop6.types.State;
 public abstract class Stepper
 {
 
+    // One over the speed of light squared. Exact as defined in the 17th CGPM (General Conference on Weights and Measures)
+    protected static double _c2 = 1.0 / (299792458.0 * 299792458.0);
+
     protected abstract void stepInner(CallingContext context, Model model) throws FatalException, TypedOperationException;
 
     // The hair is the smallest timed step that the propagator will take, and a stepper can be asked for.
@@ -151,6 +154,11 @@ public abstract class Stepper
             Vector axis = angularVelocity.mul(sinc_theta_2_2 * timeDelta_s); 
             return new Quaternion(Math.cos(theta * 0.5), axis.x, axis.y, axis.z);
         }
+    }
+
+    public static double gamma(Vector vel)
+    {
+        return 1.0 / Math.sqrt(1.0 - vel.magnitude() * _c2);
     }
 
 }
