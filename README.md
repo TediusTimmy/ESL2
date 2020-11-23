@@ -70,9 +70,9 @@ TODO : the parser probably won't catch `set x to x` properly.
 `"while" <expression> [ "call" <identifier> ] "do" <statements> "end"`  
 The "call" portion gives the loop a name. See break and continue.
 ### For
-`"for" <variable> "from" <expression> ( "to" | "downto" ) <expression> [ "step" <expression> ] [ "call" <identifier> ] "do" <statements> "end"`  
-`"for" <variable> "in" <expression> [ "call" <identifier> ] "do" <statements> "end"`  
-The second form iterates over an array or dictionary. When a dictionary is iterated over, the loop control variable is successively set to a two element array of { key, value }.
+`"for" <identifier> "from" <expression> ( "to" | "downto" ) <expression> [ "step" <expression> ] [ "call" <identifier> ] "do" <statements> "end"`  
+`"for" <identifier> "in" <expression> [ "call" <identifier> ] "do" <statements> "end"`  
+The second form iterates over an array or dictionary. When a dictionary is iterated over, the loop control variable is successively set to a two element array of { key, value }. If the variable does not exist, it will be created, and it will remain alive after the loop.
 ### Return
 `"return" <expression>`
 ### Select
