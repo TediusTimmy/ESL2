@@ -734,6 +734,12 @@ public final class Parser
                 getter = table.getVariableGetter(identTok.text);
                 setter = table.getVariableSetter(identTok.text);
             }
+            else if (IdentifierType.UNDEFINED == table.lookup(identTok.text))
+            {
+                table.addLocal(identTok.text);
+                getter = table.getVariableGetter(identTok.text);
+                setter = table.getVariableSetter(identTok.text);
+            }
             else
             {
                 badWrong = true;
