@@ -109,6 +109,30 @@ public final class Lexer
                 // Shell-style to-end-of-line comment.
                 consumeToEndOfLine();
                 break;
+            case '(':
+                // Old Pascal-style comment. Read until *)
+                if ('*' == bgi.peek(1))
+                {
+                    int lineNo = currentLine;
+                    int charNo = currentCharacter;
+                    consume(); // Consume the '(' and '*'
+                    consume(); // so that "(*)" is not a valid comment.
+                    while((GenericInput.ENDOFFILE != bgi.peek()) && (('*' != bgi.peek()) || (')' != bgi.peek(1))))
+                    {
+                        consume();
+                    }
+                    if (GenericInput.ENDOFFILE == bgi.peek())
+                    {
+                        throw new FatalException("End of Input reached before comment terminated.\n\tFrom file " + sourceName + " on line " + lineNo + " at " + charNo);
+                    }
+                    consume(); // Finish off the comment.
+                    consume();
+                }
+                else
+                {
+                    return;
+                }
+                break;
             default:
                 return;
             }
@@ -409,7 +433,7 @@ public final class Lexer
         nextToken = new Token(tokenType, text, sourceName, lineNo, charNo);
     }
 
-    private static final class BufferedGenericInput
+    public static final class BufferedGenericInput
     {
 
         private final GenericInput input;
