@@ -262,7 +262,7 @@ public final class SystemReader
                 varNames.add(varName);
             }
 
-            vars = funDefs.buildGetterSetter(varNames);
+            vars = FunctionDefinitions.buildGetterSetter(varNames, name);
             buildFrame(contextToPopulate, name, varNames);
             object.variables.addAll(Collections.nCopies(varNames.size(), ConstantsSingleton.getInstance().DOUBLE_ZERO));
         }
@@ -318,7 +318,7 @@ public final class SystemReader
         return res;
     }
 
-    private static CallWrapper buildThunk(FunctionPairs funs, String name, CallingContext contextToPopulate) throws FatalException
+    private static CallWrapper buildThunk(FunctionPairs funs, String name, CallingContext contextToPopulate)
     {
         if (null != funs.funs.get(name))
         {

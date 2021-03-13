@@ -36,9 +36,6 @@ public final class FunctionDefinitions
 
     public final FunctionPairs sharedFunctions;
 
-    public final ArrayList<VariableGetter> sharedGetters; // getter at index x gets index x from object
-    public final ArrayList<VariableSetter> sharedSetters;
-
     public final GetterSetter gs;
     public GlobalGetterSetter mgs;
 
@@ -47,8 +44,6 @@ public final class FunctionDefinitions
         statelessStdLibFunctions = new FunctionPairs();
         statefullStdLibFunctions = new FunctionPairs();
         sharedFunctions = new FunctionPairs();
-        sharedGetters = new ArrayList<VariableGetter>();
-        sharedSetters = new ArrayList<VariableSetter>();
         gs = new GetterSetter();
         mgs = null;
     }
@@ -80,19 +75,13 @@ public final class FunctionDefinitions
         moveFromStateLessToStateFullFunctions("InstantKick");
     }
 
-    public GlobalGetterSetter buildGetterSetter(ArrayList<String> variables)
+    public static GlobalGetterSetter buildGetterSetter(ArrayList<String> variables, String name)
     {
-        while (sharedGetters.size() <= variables.size())
-        {
-            sharedGetters.add(new VariableGetter(sharedGetters.size()));
-            sharedSetters.add(new VariableSetter(sharedSetters.size()));
-        }
-
         GlobalGetterSetter result = new GlobalGetterSetter();
         for (int i = 0; i < variables.size(); ++i)
         {
-            result.getters.put(variables.get(i), sharedGetters.get(i));
-            result.setters.put(variables.get(i), sharedSetters.get(i));
+            result.getters.put(variables.get(i), new VariableGetter(i, name));
+            result.setters.put(variables.get(i), new VariableSetter(i, name));
         }
 
         return result;
@@ -103,8 +92,6 @@ public final class FunctionDefinitions
         statelessStdLibFunctions = src.statelessStdLibFunctions;
         statefullStdLibFunctions = src.statefullStdLibFunctions;
         sharedFunctions = new FunctionPairs();
-        sharedGetters = new ArrayList<VariableGetter>();
-        sharedSetters = new ArrayList<VariableSetter>();
         gs = new GetterSetter();
         mgs = src.mgs;
     }

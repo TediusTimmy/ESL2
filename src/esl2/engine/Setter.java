@@ -17,11 +17,12 @@
 
 package esl2.engine;
 
+import esl2.types.TypedOperationException;
 import esl2.types.ValueType;
 
 public abstract class Setter
 {
 
-    public abstract void set(CallingContext context, ValueType value);
+    public abstract void set(CallingContext context, ValueType value) throws TypedOperationException;
 
 }

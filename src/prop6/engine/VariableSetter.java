@@ -20,24 +20,31 @@ package prop6.engine;
 import esl2.engine.CallingContext;
 import esl2.engine.Setter;
 import esl2.types.ProgrammingException;
+import esl2.types.TypedOperationException;
 import esl2.types.ValueType;
 
 public final class VariableSetter extends Setter
 {
 
     private final int location;
+    private final String name;
 
-    public VariableSetter(int location)
+    public VariableSetter(int location, String name)
     {
         this.location = location;
+        this.name = name;
     }
 
     @Override
-    public void set(CallingContext context, ValueType value)
+    public void set(CallingContext context, ValueType value) throws TypedOperationException
     {
         try
         {
             prop6.engine.CallingContext castedContext = ((prop6.engine.CallingContext)context);
+            if (name != castedContext.top().name)
+            {
+                throw new TypedOperationException("Variable part of object '" + name + "' accessed from object '" + castedContext.top().name + "'.");
+            }
             castedContext.top().variables.set(location, value);
         }
         catch(ClassCastException e)

@@ -17,11 +17,12 @@
 
 package esl2.engine;
 
+import esl2.types.TypedOperationException;
 import esl2.types.ValueType;
 
 public abstract class Getter
 {
 
-    public abstract ValueType get(CallingContext context);
+    public abstract ValueType get(CallingContext context) throws TypedOperationException;
 
 }
